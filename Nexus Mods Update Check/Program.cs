@@ -8,7 +8,7 @@ namespace Nexus_Mods_Update_Check
 {
     class Program
     {
-        public static string version = "1.0.0";
+        public static string version = "1.0.1";
         public static string cliDir = Directory.GetCurrentDirectory() + "/data/";
         public static string modListFile = cliDir + "mod.list";
         //public static string modDir = cliDir + "downloads/";
@@ -65,6 +65,9 @@ namespace Nexus_Mods_Update_Check
                     Console.WriteLine("");
                     Console.WriteLine("-finalize all\t\t\tThis will update all the mod versions inside the mod list.\n\t\t\t\tPlease make sure that you have to download and deploy them manually.");
                     Console.WriteLine("-finalize <game> <id>\t\t\tThis will update the selected mod versions inside the mod list.\n\t\t\t\tPlease make sure that you have to download and deploy them manually.");
+                    Console.WriteLine("");
+                    Console.WriteLine("-download all\t\t\tOpen the download page for all mods in the mod list.");
+                    Console.WriteLine("-download <game> <id>\t\tOpen the download page for selected mod in the mod list.");
                     break;
 
                 case "-v":
@@ -167,6 +170,20 @@ namespace Nexus_Mods_Update_Check
                             modList = new List<List<string>>();
                             modList = loadModList();
                             addByUrl(url);
+                            break;
+                    }
+                    break;
+
+                case "-download":
+                    switch (args[1])
+                    {
+                        case "all":
+                            downloadAll();
+                            break;
+
+                        default:
+                            var url = @"https://www.nexusmods.com/" + args[1] + "/mods/" + args[2];
+                            downloadByGameId(url);
                             break;
                     }
                     break;
@@ -338,6 +355,51 @@ namespace Nexus_Mods_Update_Check
                 }
                 Console.WriteLine("");
             }
+        }
+
+        public static void downloadAll()
+        {
+            Console.WriteLine("Download all Mods...");
+            Console.WriteLine("");
+            for (int i = 0; i < modList.Count; i++)
+            {
+                modList[i][3] = modList[i][3] + "?tab=files";
+                List<string> modData = getModData(modList[i][3]);
+
+                Console.WriteLine("Mod name:\t\t" + modList[i][0]);
+                Console.WriteLine("Installed version:\t" + modList[i][1]);
+                Console.WriteLine("Available version:\t" + modData[1]);
+
+                System.Diagnostics.Process.Start(modList[i][3] + "&file_id=" + modData[2]);
+                Console.WriteLine("Message:\t\tOpen default browser to download page...");
+
+                Console.WriteLine("");
+            }
+        }
+
+        public static void downloadByGameId(string url)
+        {
+            Console.WriteLine("Download selected mod...");
+            Console.WriteLine("");
+
+            if (modExistsInList(url))
+            {
+                url = url + "?tab=files";
+                List<string> modData = getModData(url);
+                List<string> modLocData = getModByUrlFromList(modData[3]);
+
+                Console.WriteLine("Mod name:\t\t" + modLocData[0]);
+                Console.WriteLine("Installed version:\t" + modLocData[1]);
+                Console.WriteLine("Available version:\t" + modData[1]);
+
+                System.Diagnostics.Process.Start(modData[3] + "&file_id=" + modData[2]);
+                Console.WriteLine("Message:\t\tOpen default browser to download page...");
+            } 
+            else
+            {
+                Console.WriteLine("Message:\t\tMod not found in mod list...");
+            }
+
         }
 
         public static List<string> getModData(string url)
