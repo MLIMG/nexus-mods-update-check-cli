@@ -392,7 +392,7 @@ namespace Nexus_Mods_Update_Check
                 Console.WriteLine("Installed version:\t" + modLocData[1]);
                 Console.WriteLine("Available version:\t" + modData[1]);
 
-                System.Diagnostics.Process.Start(modData[3] + "&file_id=" + modData[2]);
+                System.Diagnostics.Process.Start(url + "&file_id=" + modData[2]);
                 Console.WriteLine("Message:\t\tOpen default browser to download page...");
             } 
             else
